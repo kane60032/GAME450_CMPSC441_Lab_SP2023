@@ -5,6 +5,9 @@ In the final project, you will need a bunch of cities spread across a map. Here 
 will generate a bunch of cities and all possible routes between them.
 '''
 
+import random
+import itertools
+
 def get_randomly_spread_cities(size, n_cities):
     """
     > This function takes in the size of the map and the number of cities to be generated 
@@ -16,16 +19,40 @@ def get_randomly_spread_cities(size, n_cities):
     :return: A list of cities with random x and y coordinates.
     """
     # Consider the condition where x size and y size are different
+    cities = []
+    for i in range(n_cities):
+        x = random.randint(0, size[0])
+        y = random.randint(0, size[1])
+        coordinates = (x,y)
+        cities.append(coordinates)
+
+    return cities
+
     pass
 
-def get_routes(cities):
+def get_routes(city_names):
     """
     It takes a list of cities and returns a list of all possible routes between those cities
     
-    :param cities: a list of cities, each of which is a tuple of coordinates
+    :param cities: a list of cities names
     :return: A list of tuples representing all possible links between cities, 
             each item in the list (a link) represents a route between two cities.
     """
+
+    """
+    a = ['a', 'b', 'c'] 
+
+    for a_combinations in itertools.combinations(a,2):
+        print(a_combinations)
+    """
+
+
+    routes = []
+    for route_list in itertools.combinations(city_names,2):
+        routes.append(route_list)
+
+    return(routes)
+
     pass
 
 
@@ -34,10 +61,10 @@ if __name__ == '__main__':
     city_names = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J']
     '''print the cities and routes'''
     cities = get_randomly_spread_cities((100, 100), 10)
-    routes = get_routes(cities)
+    routes = get_routes(city_names)
     print('Cities:')
     for i, city in enumerate(cities):
         print(f'{city_names[i]}: {city}')
     print('Routes:')
     for i, route in enumerate(routes):
-        print(f'{i}: {city_names[route[0]]} to {city_names[route[1]]}')
+        print(f'{i}: {route[0]} to {route[1]}')

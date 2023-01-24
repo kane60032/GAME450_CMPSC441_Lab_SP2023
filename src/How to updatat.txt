@@ -1,6 +1,12 @@
 sync fork button on github
 
+git remote -v
+
+git remote add upstream https://github.com/PulinPennState/GAME450_CMPSC441_Lab_SP2023
+
 git pull
+
+git pull upstream main
 
 ...make changes...
 

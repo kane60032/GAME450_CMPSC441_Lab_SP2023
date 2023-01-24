@@ -31,7 +31,6 @@ def get_randomly_spread_cities(size, n_cities):
     pass
 
 def get_routes(city_names):
-def get_routes(city_names):
     """
     It takes a list of cities and returns a list of all possible routes between those cities. 
     Equivalently, all possible routes is just all the possible pairs of the cities. 
@@ -70,4 +69,4 @@ if __name__ == '__main__':
     print('Routes:')
     for i, route in enumerate(routes):
         print(f'{i}: {route[0]} to {route[1]}')
-        print(f'{i}: {route[0]} to {route[1]}')
+

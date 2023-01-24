@@ -8,6 +8,7 @@ In this lab, you will write a function that calculates the cost of a route betwe
 A terrain is generated for you 
 '''
 import numpy as np
+import tcod
 
 def get_route_cost(route_coordinate, game_map):
     """
@@ -39,6 +40,29 @@ def get_route_cost(route_coordinate, game_map):
     :return: a floating point number representing the cost of the route
     """
     # Build a path from start to end that looks like [(0, 0), (1, 1), (2, 2), (3, 3), (4, 4), (5, 4)]
+    rootX = route_coordinate[0][0]
+    rootY = route_coordinate[0][1]
+    destiX = route_coordinate[1][0]
+    destiY = route_coordinate[1][1]
+    print(rootX)
+    print(rootY)
+    print(destiX)
+    print(destiY)
+
+    #I CHANGED THE RANDOM MAP GENERATOR FROM FLOATS TO 0s AND 1s. CHECK IF THIS IS OK!!!
+
+
+    cost = game_map
+    graph = tcod.path.SimpleGraph(  cost=cost,                         cardinal=2, diagonal=3, )
+    #graph = tcod.path.SimpleGraph(  cost=np.ones((500, 500), np.int8), cardinal=2, diagonal=3, )
+    pf= tcod.path.Pathfinder(graph)
+    pf.add_root((rootX,rootY))
+    path = pf.path_to((destiX, destiY)).tolist()
+    print(path)
+
+    # PLACEHOLDER FOR TESTING
+    # path = [(0, 0), (1, 1), (2, 2), (3, 3), (4, 4), (5, 4)]
+    
     pass 
     return game_map[tuple(zip(*path))].sum()
 
@@ -55,7 +79,7 @@ def route_to_coordinates(city_locations, city_names, routes):
 
 def generate_terrain(map_size):
     """ generate a terrain map of size map_size """
-    return np.random.rand(*map_size)
+    return np.random.randint(0,1,*map_size)
 
 
 def main():

@@ -1,0 +1,11 @@
+sync fork button on github
+
+git pull
+
+...make changes...
+
+git add
+
+git commit -m
+
+git push

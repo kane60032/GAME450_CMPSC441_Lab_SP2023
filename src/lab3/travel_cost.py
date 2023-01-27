@@ -44,24 +44,24 @@ def get_route_cost(route_coordinate, game_map):
     rootY = route_coordinate[0][1]
     destiX = route_coordinate[1][0]
     destiY = route_coordinate[1][1]
-    print(rootX)
-    print(rootY)
-    print(destiX)
-    print(destiY)
-
-    #I CHANGED THE RANDOM MAP GENERATOR FROM FLOATS TO 0s AND 1s. CHECK IF THIS IS OK!!!
-
+    
+    ## DEBUGGING STUFF
+    # print(rootX)
+    # print(rootY)
+    # print(destiX)
+    # print(destiY)
 
     cost = game_map
-    graph = tcod.path.SimpleGraph(  cost=cost,                         cardinal=2, diagonal=3, )
-    #graph = tcod.path.SimpleGraph(  cost=np.ones((500, 500), np.int8), cardinal=2, diagonal=3, )
+    xDimm = game_map.shape[0]
+    yDimm = game_map.shape[1]
+    # print("Size = ", xDimm, " ", yDimm)
+    graph = tcod.path.SimpleGraph(  cost=np.ones((xDimm, yDimm), np.int8), cardinal=2, diagonal=3, )
     pf= tcod.path.Pathfinder(graph)
     pf.add_root((rootX,rootY))
     path = pf.path_to((destiX, destiY)).tolist()
-    print(path)
 
-    # PLACEHOLDER FOR TESTING
-    # path = [(0, 0), (1, 1), (2, 2), (3, 3), (4, 4), (5, 4)]
+    ## Uncomment to show the exact path
+    # print(path)
     
     pass 
     return game_map[tuple(zip(*path))].sum()
@@ -79,7 +79,7 @@ def route_to_coordinates(city_locations, city_names, routes):
 
 def generate_terrain(map_size):
     """ generate a terrain map of size map_size """
-    return np.random.randint(0,1,*map_size)
+    return np.random.rand(*map_size)
 
 
 def main():

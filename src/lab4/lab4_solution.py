@@ -45,14 +45,39 @@ class AiPlayer(Player):
         self.initial_weapon = random_weapon_select()
     
     def weapon_selecting_strategy(self):
-        pass
-
+        isMimic = False
+        # First round, make a random attack
+        if len(self.opponent_choices) == 0:
+            return self.initial_weapon
+        # Second round, try and counter them by picking their weakness    
+        if len(self.opponent_choices) == 1:
+            return (self.opponent_choices[-1]+1)%3
+        # Third round, we have enough info to figure out what agent we are fighting    
+        if len(self.opponent_choices) >= 2:
+            # Did we already identify it as a mimc? If so skip all of this
+            if isMimic == True:
+                return (self.my_choices[-1]+1)%3
+            # Did they pick the same weapon two rounds in a row? If so they're either single or switch play it's weakness
+            if(self.opponent_choices[-2] == self.opponent_choices[-1]):
+                return (self.opponent_choices[-1]+1)%3
+            # They're changing it up, they're either switch or mimic
+            else:
+                # Check if they are a copy cat (mimic agent)
+                if(self.opponent_choices[-1] == self.my_choices[-2]):
+                    isMimic = True
+                    return (self.my_choices[-1]+1)%3
+                # They're a switch agent, pick their counter
+                else:
+                    return (self.opponent_choices[-1]+1)%3
 
 if __name__ == '__main__':
     final_tally = [0]*3
     for agent in range(3):
         for i in range(100):
             tally = [score for _, score in run_game(AiPlayer("AI"), 100, agent)]
-            final_tally[agent] += tally[0]/sum(tally)
+            if sum(tally) == 0:
+                final_tally[agent] = 0
+            else:
+                final_tally[agent] += tally[0]/sum(tally)
 
     print("Final tally: ", final_tally)  

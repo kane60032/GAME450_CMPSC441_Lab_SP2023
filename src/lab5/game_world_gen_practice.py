@@ -30,24 +30,43 @@ from lab2.cities_n_routes import get_randomly_spread_cities, get_routes
 
 ''' Create helper functions here '''
 
+def generate_surface(size):
+    landscape = get_landscape(size)
+    print("Created a landscape of size", landscape.shape)
+    pygame_surface = pygame.surfarray.make_surface(landscape[:, :, :3])
+    return pygame_surface 
+
+
+def draw_city(city_locations): # Takes the list of cities and draws them on the map
+    for i in city_locations:
+        pygame.draw.circle(pygame_surface, (255, 0, 0), i, 3)
+
+
+def draw_routes(routes): # Takes the list of routes and draws them on the map
+    for i in routes:
+        startPoint = city_locations_dict[i[0]]
+        endPoint = city_locations_dict[i[1]]
+        pygame.draw.lines(pygame_surface, (255, 255, 255), False, (startPoint, endPoint))
+
+
 if __name__ == "__main__":
     pygame.init()
     size = width, height = 640, 480
     black = 1, 1, 1
-
     screen = pygame.display.set_mode(size)
-    landscape = get_landscape(size)
-    print("Created a landscape of size", landscape.shape)
-    pygame_surface = pygame.surfarray.make_surface(landscape[:, :, :3]) 
+
+    pygame_surface = generate_surface(size)
 
     city_names = ['Morkomasto', 'Morathrad', 'Eregailin', 'Corathrad', 'Eregarta',
                   'Numensari', 'Rhunkadi', 'Londathrad', 'Baernlad', 'Forthyr']
-    city_locations = [] 
+    city_locations = []
     routes = []
 
     ''' Setup cities and routes in here'''
+    city_locations = get_randomly_spread_cities((size), len(city_names))
+    routes = get_routes(city_names)
 
-    city_locations_dict = {name: location for name, location in zip(city_names, city_locations)}
+    city_locations_dict = {name: location for name, location in zip(city_names, city_locations)} # "CityName" (x,y)
     random.shuffle(routes)
     routes = routes[:10] 
 
@@ -60,7 +79,8 @@ if __name__ == "__main__":
         screen.blit(pygame_surface, (0, 0))
 
         ''' draw cities '''
-
+        draw_city(city_locations)
         ''' draw first 10 routes '''
+        draw_routes(routes)
 
         pygame.display.flip()

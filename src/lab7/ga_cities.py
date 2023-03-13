@@ -20,6 +20,7 @@ from pathlib import Path
 sys.path.append(str((Path(__file__) / ".." / ".." / "..").resolve().absolute()))
 
 from src.lab5.landscape import elevation_to_rgba
+from src.lab5.landscape import get_elevation
 
 
 def game_fitness(cities, idx, elevation, size):
@@ -30,6 +31,54 @@ def game_fitness(cities, idx, elevation, size):
     2. The cities should have a realistic distribution across the landscape
     3. The cities may also not be on top of mountains or on top of each other
     """
+    # Get the city coordinates
+    cityCoords = solution_to_cities(cities, size)
+
+    for city in cityCoords:
+        # Grab & store the city location so we can reference it multiple time easier
+        cityX = city[0]
+        cityY = city[1]
+        cityElevation = elevation[cityX][cityY]
+
+        # If the city's location is not on water or a mountain, raise this solution's fitness 
+        if(cityElevation >= 0.25 and cityElevation <= 0.65):
+            fitness += 0.00001
+            print("Good city elevation")
+        # If the city's location is on a white pixel 
+        #if(cityElevation >= 0.7):
+        #    fitness -= 0.00001
+        #    print("Too high, lower fitness")
+        
+        # For the list of cities, if the current city is within is within X pixels, decrease the fitness
+        for otherCity in cityCoords:
+            # Grab & store the city location so we can reference it multiple time easier
+            otherCityX = otherCity[0]
+            otherCityY = otherCity[1]
+
+            # Skip the check if we are comparing the same city, otherwise compair the distance
+            if(cityX == otherCityX and cityY == otherCityY):
+                # Debug message to ensure the program is running correctly
+                print("Same city, change nothing")
+            else:
+                # Debug message to ensure the program is running correctly
+                print("Different cities")
+
+                # Calculate the distance between the current city and the city we are comparing
+                xDifference = abs(cityX - otherCityX)
+                yDifference = abs(cityY - otherCityY)
+                totalDistance = xDifference + yDifference
+
+                # Debug message to ensure the program is running correctly and not stuck
+                print("These cities are ", totalDistance, " miles apart")
+
+                # If the city is too close, lower the fitness. Otherwise raise it if they are far away (optional)
+                if(totalDistance <= 15):
+                    fitness -= 0.0001
+                elif(totalDistance >= 50):
+                    fitness += 0.0001
+                    
+            
+        
     return fitness
 
 
@@ -115,9 +164,11 @@ if __name__ == "__main__":
     n_cities = 10
     elevation = []
     """ initialize elevation here from your previous code"""
+    elevation = get_elevation(size)
     # normalize landscape
     elevation = np.array(elevation)
     elevation = (elevation - elevation.min()) / (elevation.max() - elevation.min())
+    print("Elevation: ", elevation)
     landscape_pic = elevation_to_rgba(elevation)
 
     # setup fitness function and GA

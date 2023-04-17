@@ -24,11 +24,14 @@ def run_episode(player, opponent):
     currentCombat = Combat()
     results = []
     while not currentCombat.gameOver:
+        prevPlayerHealth = player.health
+        prevOpponentHealth = opponent.health
         reward = run_turn(currentCombat, player, opponent)
-        result = ((player.health, opponent.health), player.weapon, reward)
+        result = ((prevPlayerHealth, prevOpponentHealth), player.weapon, reward)
+        #reward = run_turn(currentCombat, player, opponent)
         results.append(result)
 
-    return results
+    return results  # This is the history used in get_history_return
 
 if __name__ == "__main__":
     player = PyGameAICombatPlayer("PLAYER AI")

@@ -20,6 +20,7 @@ sys.path.append(str((Path(__file__) / ".." / "..").resolve().absolute()))
 
 from lab11.pygame_combat import PyGameComputerCombatPlayer
 from lab11.turn_combat import CombatPlayer
+from lab11.pygame_ai_player import PyGameAICombatPlayer
 from lab12.episode import run_episode
 
 from collections import defaultdict
@@ -42,7 +43,8 @@ class PyGamePolicyCombatPlayer(CombatPlayer):
         self.policy = policy
 
     def weapon_selecting_strategy(self):
-        self.weapon = self.policy[self.current_env_state]
+        #self.weapon = self.policy[self.current_env_state]
+        self.weapon = self.policy[(self.health, self.current_env_state[0])]
         return self.weapon
 
 
@@ -74,8 +76,69 @@ def run_episodes(n_episodes):
         Return the action values as a dictionary of dictionaries where the keys are states and 
             the values are dictionaries of actions and their values.
     '''
+    #----------------------------------------------------------------------------------------------------------------------------------------------#
+    # Action values format: {(PlayerHealth, EnemyHealth): {PlayerWeapon: Reward}, (): {}, (): {},...}
+    # This is a dictionary of dictionaries where keys are states and values are dictionaries of actions and their returns
+    action_values_unaveraged = {}
+    action_values_averaged = {}
+    for episode in range(n_episodes):
+        player = PyGameRandomCombatPlayer("PLAYER AI")
+        opponent = PyGameComputerCombatPlayer("OPPONENT AI")
 
-    return action_values
+        # Grab the episode history (healths, actions, and rewards) for each turn in a combat
+        history = run_episode(player, opponent)
+        historyReturns = get_history_returns(history)
+
+        # This appends the history to the action_values dictionary while alse
+        # checking for duplicates in the history
+        for state in historyReturns:
+            if state not in action_values_unaveraged:
+                action_values_unaveraged.update({state : [historyReturns[state]]})
+            else:
+                action_values_unaveraged[state].append(historyReturns[state])
+        
+        '''For each state in the action_values_unaveraged, add up all of the rewards a specific action took and get
+          the average of it. After that store all of the averages in an action_values dictionary. 
+          
+          Example:
+            Unaveraged: (100, 90): {0: -1, 1: 3, 1: 3, 1: 3, 2: 0, 2: -1}   #note that reward will not be 3 but is to simplify example
+            Averaged:   (100, 90): {0: -1, 1: 3, 2: -0.5}                   #this is what I want
+        '''
+        
+    # Average calculation
+    for state in action_values_unaveraged:
+        # Resets the totals and counts for this state
+        weaponTotal_0 = 0
+        weaponTotal_1 = 0
+        weaponTotal_2 = 0
+        weaponCount_0 = 0
+        weaponCount_1 = 0
+        weaponCount_2 = 0
+        
+        # Get the total and number of each action value for this item in this state (since there can be multiple in a state)
+        for item in action_values_unaveraged[state]:
+            if 0 in item:
+                weaponTotal_0 += float(item[0])
+                weaponCount_0 += 1
+            if 1 in item:
+                weaponTotal_1 += float(item[1])
+                weaponCount_1 += 1
+            if 2 in item:
+                weaponTotal_2 += float(item[2])
+                weaponCount_2 += 1
+                
+        # Prevents divide by 0
+        if weaponCount_0 == 0:
+            weaponCount_0 =1
+        if weaponCount_1 == 0:
+            weaponCount_1 = 1
+        if weaponCount_2 == 0:
+            weaponCount_2 = 1
+        
+        # Calculate the average for this state and append it to a new dictionary
+        action_values_averaged.update({state:{0:weaponTotal_0/weaponCount_0, 1:weaponTotal_1/weaponCount_1, 2:weaponTotal_2/weaponCount_2}})
+    
+    return action_values_averaged
 
 
 def get_optimal_policy(action_values):
@@ -99,8 +162,10 @@ def test_policy(policy):
 
 
 if __name__ == "__main__":
-    action_values = run_episodes(10000)
+    action_values = run_episodes(10000) #10000
+    #print("\n\n\\n")
     print(action_values)
+    #print("\n\n\\n")
     optimal_policy = get_optimal_policy(action_values)
     print(optimal_policy)
     print(test_policy(optimal_policy))

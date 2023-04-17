@@ -28,7 +28,7 @@ class PyGameComputerCombatPlayer(CombatPlayer):
             self.weapon = 0
         return self.weapon
 
-
+# This had a different name if an issue occurs
 def draw_combat_on_screen(combat_surface, screen, player_sprite, opponent_sprite):
     screen.blit(combat_surface, (0, 0))
     player_sprite.draw_sprite(screen)
@@ -45,7 +45,7 @@ def run_turn(currentGame, player, opponent):
     states = list(reversed([(player.health, player.weapon) for player in players]))
     for current_player, state in zip(players, states):
         current_player.selectAction(state)
-
+        
     currentGame.newRound()
     currentGame.takeTurn(player, opponent)
     print("%s's health = %d" % (player.name, player.health))

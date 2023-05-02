@@ -43,7 +43,7 @@ def game_fitness(cities, idx, elevation, size):
         # If the city's location is not on water or a mountain, raise this solution's fitness 
         if(cityElevation >= 0.25 and cityElevation <= 0.65):
             fitness += 0.00001
-            print("Good city elevation")
+            #print("Good city elevation")
         # If the city's location is on a white pixel 
         #if(cityElevation >= 0.7):
         #    fitness -= 0.00001
@@ -58,10 +58,11 @@ def game_fitness(cities, idx, elevation, size):
             # Skip the check if we are comparing the same city, otherwise compair the distance
             if(cityX == otherCityX and cityY == otherCityY):
                 # Debug message to ensure the program is running correctly
-                print("Same city, change nothing")
+                #print("Same city, change nothing")
+                pass
             else:
                 # Debug message to ensure the program is running correctly
-                print("Different cities")
+                #print("Different cities")
 
                 # Calculate the distance between the current city and the city we are comparing
                 xDifference = abs(cityX - otherCityX)
@@ -69,7 +70,7 @@ def game_fitness(cities, idx, elevation, size):
                 totalDistance = xDifference + yDifference
 
                 # Debug message to ensure the program is running correctly and not stuck
-                print("These cities are ", totalDistance, " miles apart")
+                #print("These cities are ", totalDistance, " miles apart")
 
                 # If the city is too close, lower the fitness. Otherwise raise it if they are far away (optional)
                 if(totalDistance <= 15):
@@ -155,6 +156,41 @@ def show_cities(cities, landscape_pic, cmap="gist_earth"):
     plt.imshow(landscape_pic, cmap=cmap)
     plt.plot(cities[:, 1], cities[:, 0], "r.")
     plt.show()
+
+def run_lab_7(n_cities, size):
+    elevation = get_elevation(size)
+    # normalize landscape
+    elevation = np.array(elevation)
+    elevation = (elevation - elevation.min()) / (elevation.max() - elevation.min())
+    landscape_pic = elevation_to_rgba(elevation)
+
+    # setup fitness function and GA
+    fitness = lambda cities, idx: game_fitness(
+        cities, idx, elevation=elevation, size=size
+    )
+    fitness_function, ga_instance = setup_GA(fitness, n_cities, size)
+
+    # Show one of the initial solutions.
+    cities = ga_instance.initial_population[0]
+    cities = solution_to_cities(cities, size)
+    show_cities(cities, landscape_pic)
+
+    # Run the GA to optimize the parameters of the function.
+    ga_instance.run()
+    ga_instance.plot_fitness()
+    print("Final Population")
+
+    # Show the best solution after the GA finishes running.
+    cities = ga_instance.best_solution()[0]
+    cities_t = solution_to_cities(cities, size)
+
+    plt.imshow(landscape_pic, cmap="gist_earth")
+    plt.plot(cities_t[:, 1], cities_t[:, 0], "r.")
+    plt.show()
+    print(fitness_function(cities, 0))
+
+    return cities_t
+
 
 
 if __name__ == "__main__":

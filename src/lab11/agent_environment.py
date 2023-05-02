@@ -11,8 +11,8 @@ from pathlib import Path
 
 sys.path.append(str((Path(__file__) / ".." / "..").resolve().absolute()))
 
-from lab2.cities_n_routes import get_randomly_spread_cities, get_routes
-
+from lab2.cities_n_routes import get_randomly_spread_cities, get_routes, convert_to_graph
+from lab7.ga_cities import run_lab_7
 
 pygame.font.init()
 game_font = pygame.font.SysFont("Comic Sans MS", 15)
@@ -62,7 +62,6 @@ class State:
         self.cities = cities
         self.routes = routes
 
-
 if __name__ == "__main__":
     size = width, height = 640, 480
     black = 1, 1, 1
@@ -89,6 +88,11 @@ if __name__ == "__main__":
     ]
 
     cities = get_randomly_spread_cities(size, len(city_names))
+    ### IMPLEMENT GA_CITIES CODE RIGHT HERE
+    #n_cities = len(city_names)
+    #cities = run_lab_7(n_cities, size)
+
+    # THIS IS WHERE THE LAB CONTINUES NORMALLY
     routes = get_routes(cities)
 
     random.shuffle(routes)
@@ -111,8 +115,22 @@ if __name__ == "__main__":
         routes=routes,
     )
 
+    """ THIS IS WHERE WE CHANGE IT SO THAT DIJSKTRA IS IMPLEMENTED """
+    # We need to:
+    # 1. Convert the city map into a dictionary for Graph class understands that includes city names, routes, and route costs
+    # 2. Send the graph to the algorithm in pygame_ai_player so that the next move can be determined
+    # 3. Set action equal to the best result from the algorithm
+    translated_routes = player.translate_routes(cities, routes, city_names)
+    best_path = player.create_graph(city_names, translated_routes)
+    current_step = len(best_path) - 1
+
+    print(best_path)
+
     while True:
         action = player.selectAction(state)
+        action = player.recommendedAction(best_path, current_step, city_names)
+        current_step -= 1
+
         if 0 <= int(chr(action)) <= 9:
             if int(chr(action)) != state.current_city and not state.travelling:
                 start = cities[state.current_city]

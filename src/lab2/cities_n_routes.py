@@ -56,18 +56,6 @@ def get_routes(city_names):
 
     pass
 
-def convert_to_graph(routes):
-    graph = {}
-    for start, end in routes:
-        if start not in graph:
-            graph[start] = {}
-        if end not in graph[start]:
-            graph[start][end] = random.randint(1, 10) # replace 10 with the maximum value you want for the random integer
-
-    # Now that the graph has been created, replace each key with a string
-    
-    return graph
-
 # TODO: Fix variable names
 if __name__ == '__main__':
     city_names = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J']

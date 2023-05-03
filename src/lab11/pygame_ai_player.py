@@ -21,6 +21,7 @@ class PyGameAIPlayer:
     def __init__(self) -> None:
         pass
 
+    """
     def selectAction(self, state):
         # Chooses a random city to go to and returns the corresponding key
         choice = random.randint(1, 10)
@@ -45,6 +46,7 @@ class PyGameAIPlayer:
             return pygame.K_8
         else:
             return pygame.K_9
+    """
     
     def recommendedAction(self, best_path, current_step, city_names):
         # What is the best city to go to for the current step?
@@ -54,26 +56,26 @@ class PyGameAIPlayer:
         choice = city_names.index(nextDestination)
 
         # Chooses a city to go to and returns the corresponding key
-        if choice == 0:
-            return pygame.K_0
-        elif choice == 1:
-            return pygame.K_1
-        elif choice == 2:
-            return pygame.K_2
-        elif choice == 3:
-            return pygame.K_3
-        elif choice == 4:
-            return pygame.K_4
-        elif choice == 5:
-            return pygame.K_5
-        elif choice == 6:
-            return pygame.K_6
-        elif choice == 7:
-            return pygame.K_7
+        if choice == 9:
+            return pygame.K_9
         elif choice == 8:
             return pygame.K_8
+        elif choice == 7:
+            return pygame.K_7
+        elif choice == 6:
+            return pygame.K_6
+        elif choice == 5:
+            return pygame.K_5
+        elif choice == 4:
+            return pygame.K_4
+        elif choice == 3:
+            return pygame.K_3
+        elif choice == 2:
+            return pygame.K_2
+        elif choice == 1:
+            return pygame.K_1
         else:
-            return pygame.K_9
+            return pygame.K_0
 
     def dijkstra_algorithm(self, graph, start_node):
         unvisited_nodes = list(graph.get_nodes())
@@ -119,9 +121,13 @@ class PyGameAIPlayer:
         path = []
         node = target_node
         
-        while node != start_node:
-            path.append(node)
-            node = previous_nodes[node]
+        # This error may occur if a path to Forthyr (final destination) doesn't exist
+        try:
+            while node != start_node:
+                path.append(node)
+                node = previous_nodes[node]
+        except KeyError:
+            print("ERROR: No path to Forthyr (destination) exists")
     
         # Add the start node manually
         path.append(start_node)
@@ -170,7 +176,23 @@ class PyGameAIPlayer:
         previous_nodes, shortest_path = self.dijkstra_algorithm(graph=graph, start_node=city_names[0])
         path = self.print_result(previous_nodes, shortest_path, start_node=city_names[0], target_node=city_names[-1])
 
-        return path
+        return path, graph
+
+    def pay_the_toll(self, current_gold, best_path, current_step, graph):
+        # Find out the cost for the route we are traveling
+        if current_step != 0:
+            tollCost = graph.value(best_path[current_step], best_path[current_step-1])
+            print("Toll from traveling from ",  str(best_path[current_step]), " to " + str(best_path[current_step-1]), ": ", tollCost)
+        
+        # Subtract the gold from our account
+        current_gold -= tollCost
+
+        # Check for game over
+        if current_gold <= 0:
+            print("You've ran out of money\nGAME OVER\n...exiting game...")
+            exit()
+        else:
+            return current_gold
 
 
 """ Create PyGameAICombatPlayer class here"""

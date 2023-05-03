@@ -70,6 +70,8 @@ class Combat:
         if player.health < 1 and opponent.health > 0:
             self.gameOver = True
             print("You Lose")
+            print("Health reached 0\nGAME OVER\n...exiting game...")
+            exit()
             return -1
         elif opponent.health < 1 and player.health > 0:
             self.gameOver = True

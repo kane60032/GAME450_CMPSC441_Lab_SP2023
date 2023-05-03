@@ -11,7 +11,7 @@ from pathlib import Path
 
 sys.path.append(str((Path(__file__) / ".." / "..").resolve().absolute()))
 
-from lab2.cities_n_routes import get_randomly_spread_cities, get_routes, convert_to_graph
+from lab2.cities_n_routes import get_randomly_spread_cities, get_routes
 from lab7.ga_cities import run_lab_7
 
 pygame.font.init()
@@ -70,6 +70,10 @@ if __name__ == "__main__":
     sprite_path = "assets/lego.png"
     sprite_speed = 1
 
+    # Stores the player's gold count (used when traveling along paths)
+    starting_gold = 20
+    current_gold = starting_gold
+
     screen = setup_window(width, height, "Game World Gen Practice")
 
     landscape_surface = get_landscape_surface(size)
@@ -100,8 +104,8 @@ if __name__ == "__main__":
 
     player_sprite = Sprite(sprite_path, cities[start_city])
 
-    #player = PyGameHumanPlayer()
-    player = PyGameAIPlayer()
+    player = PyGameHumanPlayer()       # Use select_action on line 132 and comment out recommendedAction
+    #player = PyGameAIPlayer()           # Use recommendedAction on line 133 comment out select_action
 
     """ Add a line below that will reset the player variable to 
     a new object of PyGameAIPlayer class."""
@@ -116,20 +120,24 @@ if __name__ == "__main__":
     )
 
     """ THIS IS WHERE WE CHANGE IT SO THAT DIJSKTRA IS IMPLEMENTED """
-    # We need to:
-    # 1. Convert the city map into a dictionary for Graph class understands that includes city names, routes, and route costs
-    # 2. Send the graph to the algorithm in pygame_ai_player so that the next move can be determined
-    # 3. Set action equal to the best result from the algorithm
+    # Here's what happens
+    # 1. We translate the routes list to use the city names instead of its coordinates
+    # 2. Send the graph to the algorithm in pygame_ai_player so that the best path to take can be calculated
+    # 3. Instead of selecting a random city to go to (ignoring paths), select the next city to go to based on where we are and the best path made
     translated_routes = player.translate_routes(cities, routes, city_names)
-    best_path = player.create_graph(city_names, translated_routes)
+    best_path, graph = player.create_graph(city_names, translated_routes)
     current_step = len(best_path) - 1
 
-    print(best_path)
-
     while True:
-        action = player.selectAction(state)
-        action = player.recommendedAction(best_path, current_step, city_names)
-        current_step -= 1
+        action = player.selectAction(state, translated_routes, city_names)
+        #action = player.recommendedAction(best_path, current_step, city_names)
+
+        # Update the gold amount from traveling
+        current_gold = player.pay_the_toll(current_gold, best_path, current_step, graph)
+
+        # Move the "map" to the next city in the best route 
+        if current_step != 0:
+            current_step -= 1
 
         if 0 <= int(chr(action)) <= 9:
             if int(chr(action)) != state.current_city and not state.travelling:

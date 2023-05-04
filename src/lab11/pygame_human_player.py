@@ -11,15 +11,24 @@ class PyGameHumanPlayer:
     def selectAction(self, state, translated_routes, city_names):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                pygame.quit()
-            while(True):
-                if event.type == pygame.KEYDOWN:
-                    if ord("0") <= event.key <= ord("9"):
-                        # neighboringSpaces[] = stuff
-                        #if state.current_city in neighboring cities
-                            return event.key
-                        #else
-                            #continue
+                pygame.quit()     
+            if event.type == pygame.KEYDOWN:
+                if ord("0") <= event.key <= ord("9"):
+                    ## Figure out the neighboring cities
+                    neighbors = []
+                    for cities in translated_routes:
+                        if city_names[state.current_city] in cities:
+                            neighbors.append(cities[0] if cities[1] == city_names[state.current_city] else cities[1])
+                    
+                    ## Convert the neighbors list from string names to integers
+                    neighbors_numbers = []
+                    for city in neighbors:
+                        neighbors_numbers.append(city_names.index(city))
+                    print("Available paths: ", neighbors_numbers)    
+
+                    if int(chr(event.key)) in neighbors_numbers:
+                        return event.key
+                        
         return ord(str(state.current_city))  # Not a safe operation for >10 cities
 
     """
@@ -103,7 +112,8 @@ class PyGameHumanPlayer:
                 path.append(node)
                 node = previous_nodes[node]
         except KeyError:
-            print("ERROR: No path to Forthyr (destination) exists")
+            print("ERROR: No path to Forthyr (destination) exists\n...exiting game...")
+            exit()
     
         # Add the start node manually
         path.append(start_node)
@@ -159,7 +169,9 @@ class PyGameHumanPlayer:
         if current_step != 0:
             tollCost = graph.value(best_path[current_step], best_path[current_step-1])
             print("Toll from traveling from ",  str(best_path[current_step]), " to " + str(best_path[current_step-1]), ": ", tollCost)
-        
+        else:
+            tollCost = graph.value(best_path[1], best_path[0])
+            print("Toll from traveling from ",  str(best_path[1]), " to " + str(best_path[0]), ": ", tollCost)
         # Subtract the gold from our account
         current_gold -= tollCost
 
@@ -221,4 +233,8 @@ class Graph(object):
     
     def value(self, node1, node2):
         "Returns the value of an edge between two nodes."
-        return self.graph[node1][node2]
+        try:
+            return self.graph[node1][node2]
+        except KeyError:
+            print("ERROR: No path to Forthyr exists, toll unavailable\n...exiting game...")
+            exit()

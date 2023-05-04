@@ -127,13 +127,11 @@ if __name__ == "__main__":
     translated_routes = player.translate_routes(cities, routes, city_names)
     best_path, graph = player.create_graph(city_names, translated_routes)
     current_step = len(best_path) - 1
-
     while True:
+        #print("BEFORE CALLING SELECTACTION")
         action = player.selectAction(state, translated_routes, city_names)
+        #print("AFTER CALLING SELECTACTION")
         #action = player.recommendedAction(best_path, current_step, city_names)
-
-        # Update the gold amount from traveling
-        current_gold = player.pay_the_toll(current_gold, best_path, current_step, graph)
 
         # Move the "map" to the next city in the best route 
         if current_step != 0:
@@ -149,6 +147,9 @@ if __name__ == "__main__":
                 print(
                     "Travelling from", state.current_city, "to", state.destination_city
                 )
+                # Update the gold amount from traveling
+                current_gold = player.pay_the_toll(current_gold, best_path, current_step, graph)
+                print("Remaining Gold: ", current_gold)
 
         screen.fill(black)
         screen.blit(landscape_surface, (0, 0))

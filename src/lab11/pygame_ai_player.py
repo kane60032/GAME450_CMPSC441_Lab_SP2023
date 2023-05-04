@@ -127,7 +127,8 @@ class PyGameAIPlayer:
                 path.append(node)
                 node = previous_nodes[node]
         except KeyError:
-            print("ERROR: No path to Forthyr (destination) exists")
+            print("ERROR: No path to Forthyr (destination) exists\n...exiting game...")
+            exit()
     
         # Add the start node manually
         path.append(start_node)
@@ -183,7 +184,9 @@ class PyGameAIPlayer:
         if current_step != 0:
             tollCost = graph.value(best_path[current_step], best_path[current_step-1])
             print("Toll from traveling from ",  str(best_path[current_step]), " to " + str(best_path[current_step-1]), ": ", tollCost)
-        
+        else:
+            tollCost = graph.value(best_path[1], best_path[0])
+            print("Toll from traveling from ",  str(best_path[1]), " to " + str(best_path[0]), ": ", tollCost)
         # Subtract the gold from our account
         current_gold -= tollCost
 
@@ -241,7 +244,11 @@ class Graph(object):
     
     def value(self, node1, node2):
         "Returns the value of an edge between two nodes."
-        return self.graph[node1][node2]
+        try:
+            return self.graph[node1][node2]
+        except KeyError:
+            print("ERROR: No path to Forthyr exists, toll unavailable\n...exiting game...")
+            exit()
 
 if __name__ == '__main__':
     player = PyGameAIPlayer()
